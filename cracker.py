@@ -58,7 +58,7 @@ class Cracker:
     @staticmethod
     def crackOnline(md5):
         try:
-            userAgent = "Mozilla/5.0 (Windows; U; Windows NT 5.1; fr-FR; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7"
+            userAgent = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:86.0) Gecko/20100101 Firefox/86."
             headers = {'User-agent':userAgent}
             url = "https://www.google.fr/search?hl=fr&q=" + md5
             requete = urllib.request.Request(url, None, headers)
