@@ -30,6 +30,7 @@ class Cracker:
                     print(Couleur.VERT + "[+] Password Found : " + str(mot) + " (" + hashMd5 + ")" + Couleur.FIN)
                     trouve = True
                     doneQueue.put("Found")
+                    break
             if not trouve:
                 print(Couleur.ROUGE + "[-] Password Not Found " + Couleur.FIN)
                 doneQueue.put("Not Found")
@@ -37,7 +38,7 @@ class Cracker:
         except FileNotFoundError:
             print(Couleur.ROUGE + "[-] Error : no directory or file !" + Couleur.FIN)
             sys.exit(1)
-        except Exception as err :
+        except Exception as err:
             print(Couleur.ROUGE + "error " + str(err) + Couleur.FIN)
             sys.exit(2)
 
