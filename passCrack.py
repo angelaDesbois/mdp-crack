@@ -13,13 +13,10 @@ import time
 import argparse
 import atexit
 from cracker import *
-
+import multiprocessing
 
 def displayTime():
     print("Durée : " + str(time.time() - debut) + " secondes")
-
-
-
 
 
 if __name__ == "__main__":
@@ -32,6 +29,11 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    processes = []
+    workQueue = multiprocessing.Queue()
+    doneQueue = multiprocessing.Queue()
+    cracker = Cracker()
+
     debut = time.time()
     atexit.register(displayTime)
 
@@ -42,19 +44,43 @@ if __name__ == "__main__":
         print("[*] Cracking Hash " + args.md5 )
         if args.file and not args.plength:
             print("[*] Using Dictionnary File " + args.file)
-            hashCrack(args.md5, args.file)
+            #False = processus descendant , True = processus ascendant
+            p1 = multiprocessing.Process(target=Cracker.work, args=(workQueue, doneQueue, args.md5, args.file, False))
+            processes.append(p1)
+            workQueue.put(cracker)
+            p1.start()
+            p2 = multiprocessing.Process(target=Cracker.work, args=(workQueue, doneQueue, args.md5, args.file, True))
+            processes.append(p2)
+            workQueue.put(cracker)
+            p2.start()
+
+            while True:
+                data = doneQueue.get()
+                notFound = 0
+                if data == "Found":
+                    p1.kill()
+                    p2.kill()
+                    break
+                elif data == "Not Found":
+                    notFound = notFound + 1
+                    break
+                if notFound == len(processes):
+                    print("no process found a password")
+                    break
+
+           # Cracker.hashCrack(args.md5, args.file)
         elif args.plength and not args.file:
             print("[*] Using incremental mode for " + str(args.plength) + "letters")
-            crackIncremental(args.md5, args.plength)
+            Cracker.crackIncremental(args.md5, args.plength)
         elif args.online:
             print("[*] Using online mode")
-            crackOnline(args.md5)
+            Cracker.crackOnline(args.md5)
         else:
             print(Couleur.ROUGE + "[-] Please choose either -f or -l argument with -md5" + Couleur.FIN)
     else:
         print(Couleur.ROUGE + "[-] MD5 Hash not provided" + Couleur.FIN)
 
-
+# ex:
  # python passCrack.py -g test
  # python passCrack.py -f liste_francais.txt -md5 098f6bcd4621d373cade4e832627b4f6
  # python passCrack.py -l 4 -md5 098f6bcd4621d373cade4e832627b4f6

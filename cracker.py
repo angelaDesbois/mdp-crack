@@ -9,7 +9,7 @@ from utils import *
 
 class Cracker:
     @staticmethod
-    def hashCrack(md5, file):
+    def hashCrack(md5, file, order, doneQueue):
         """
         Casse un Hash MD5 via une liste de mots-clé (file)
         :param md5: hash md5 à casser
@@ -19,20 +19,26 @@ class Cracker:
         try:
             trouve = False
             ofile = open(file, "r")
-            for mot in ofile.readlines():
+            if Order.ASCEND == order:
+                contain = reversed(list(ofile.readlines()))
+            else:
+                contain = ofile.readlines()
+            for mot in contain:
                 mot = mot.strip("\n")
                 hashMd5 = hashlib.md5(mot.encode("utf8")).hexdigest()
                 if hashMd5 == md5:
-                    print(Couleur.VERT + "[+] Mot de passe trouvé : " + str(mot) + " (" + hashMd5 + ")" + Couleur.FIN)
+                    print(Couleur.VERT + "[+] Password Found : " + str(mot) + " (" + hashMd5 + ")" + Couleur.FIN)
                     trouve = True
+                    doneQueue.put("Found")
             if not trouve:
-                print(Couleur.ROUGE + "[-] Mot de passe non trouvé " + Couleur.FIN)
+                print(Couleur.ROUGE + "[-] Password Not Found " + Couleur.FIN)
+                doneQueue.put("Not Found")
             ofile.close()
         except FileNotFoundError:
-            print(Couleur.ROUGE + "[-] Erreur : nom de dossier ou fichier introuvable!" + Couleur.FIN)
+            print(Couleur.ROUGE + "[-] Error : no directory or file !" + Couleur.FIN)
             sys.exit(1)
         except Exception as err :
-            print(Couleur.ROUGE + "erreur " + str(err) + Couleur.FIN)
+            print(Couleur.ROUGE + "error " + str(err) + Couleur.FIN)
             sys.exit(2)
 
 
@@ -58,7 +64,7 @@ class Cracker:
     @staticmethod
     def crackOnline(md5):
         try:
-            userAgent = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:86.0) Gecko/20100101 Firefox/86."
+            userAgent = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:86.0) Gecko/20100101 Firefox/86.0"
             headers = {'User-agent':userAgent}
             url = "https://www.google.fr/search?hl=fr&q=" + md5
             requete = urllib.request.Request(url, None, headers)
@@ -72,3 +78,18 @@ class Cracker:
             print(Couleur.ROUGE + "[-] HASH NOT FOUND WITH GOOGLE " + Couleur.FIN)
         else:
             print(Couleur.VERT + "[+] PASSWORD FOUND " + url + Couleur.FIN)
+
+
+    @staticmethod
+    def work(workQueue, doneQueue, md5, file, order):
+        """
+
+        :param workQueue:
+        :param doneQueue:
+        :param md5:
+        :param file:
+        :param order:
+        :return:
+        """
+        obj = workQueue.get()
+        obj.hashCrack(md5, file, order, doneQueue)
