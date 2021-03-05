@@ -2,10 +2,12 @@
 # coding:utf-8
 
 """
+todo : a faire en C pr + efficace
 generateur md5
 crackeur mdp dico
 crackeur mdp recursive (printable: str = digits + ascii_letters + punctuation + whitespace)
 carckeur mdp en ligne
+crackeur regex style
 commands line args à la fin
 """
 
@@ -26,6 +28,7 @@ if __name__ == "__main__":
     parser.add_argument("-md5", "--md5", dest="md5", help="Hash password (MD5)", required=False)
     parser.add_argument("-l", "--length", dest="plength", help="password length", required=False, type=int)
     parser.add_argument("-w", "--online", dest="online", help="look for hash online", required=False, action="store_true")
+    parser.add_argument("-p", "--pattern", dest="pattern", help="Use password pattern (^=MAJ, *=MIN, ²=NUMBER)")
 
     args = parser.parse_args()
 
@@ -67,6 +70,9 @@ if __name__ == "__main__":
         elif args.online:
             print("[*] Using online mode")
             Cracker.crackOnline(args.md5)
+        elif args.pattern:
+            print("[*] Using password pattern" + args.pattern)
+            Cracker.smartCrack(args.md5, args.pattern)
         else:
             print(Couleur.ROUGE + "[-] Please choose either -f or -l argument with -md5" + Couleur.FIN)
     else:
@@ -77,3 +83,5 @@ if __name__ == "__main__":
  # python passCrack.py -f liste_francais.txt -md5 098f6bcd4621d373cade4e832627b4f6
  # python passCrack.py -l 4 -md5 098f6bcd4621d373cade4e832627b4f6
  # python passCrack.py -md5 e10adc3949ba59abbe56e057f20f883e -w
+ #python passCrack.py -md5 91a9355bbeb0370335f511652bf6f2cc -p ^**²  (pr mdp longueur 4)
+ #python passCrack.py -md5 b410e85fb1c55ccd1e52beb745fc3e19 -p K****67

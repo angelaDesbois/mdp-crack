@@ -94,3 +94,55 @@ class Cracker:
         """
         obj = workQueue.get()
         obj.hashCrack(md5, file, order, doneQueue)
+
+
+    @staticmethod
+    def smartCrack(md5, pattern, _index=0):
+        """
+
+        :param md5:
+        :param pattern:
+        :param _index:
+        :return:
+        """
+        MAJ = string.ascii_uppercase  # ^
+        NUMBER = string.digits        # ²   (^2)
+        MIN = string.ascii_lowercase  # *
+
+        if _index < len(pattern):
+            if pattern[_index] in MAJ + NUMBER + MIN:
+                Cracker.smartCrack(md5, pattern, _index + 1)
+            if "^" == pattern[_index]:
+                for c in MAJ:
+                    p = pattern.replace("^", c, 1)
+                    currentHash = hashlib.md5(p.encode("utf8")).hexdigest()
+                    if currentHash == md5:
+                        print(Couleur.VERT + "[+] PASSWORD FOUND " + p + Couleur.FIN)
+                        sys.exit(0)
+                    print("MAJ : " + p + " (" + currentHash + " )")
+                    Cracker.smartCrack(md5, p, _index + 1)
+
+            if "*" == pattern[_index]:
+                for c in MIN:
+                    p = pattern.replace("*", c, 1)
+                    currentHash = hashlib.md5(p.encode("utf8")).hexdigest()
+                    if currentHash == md5:
+                        print(Couleur.VERT + "[+] PASSWORD FOUND " + p + Couleur.FIN)
+                        sys.exit(0)
+                    print("MIN : " + p + " (" + currentHash + " )")
+                    Cracker.smartCrack(md5, p, _index + 1)
+
+            if "²" == pattern[_index]:
+                for c in NUMBER:
+                    p = pattern.replace("²", c, 1)
+                    currentHash = hashlib.md5(p.encode("utf8")).hexdigest()
+                    if currentHash == md5:
+                        print(Couleur.VERT + "[+] PASSWORD FOUND " + p + Couleur.FIN)
+                        sys.exit(0)
+                    print("NUMBER : " + p + " (" + currentHash + " )")
+                    Cracker.smartCrack(md5, p, _index + 1)
+
+        else:
+            return
+
+
