@@ -41,32 +41,24 @@ if __name__ == "__main__":
         print("[*] Hash MD5 of " + args.gen + " = " + hashlib.md5(args.gen.encode("utf8")).hexdigest())
 
     if args.md5:
-        print("[*] Cracking Hash " + args.md5 )
+        print("[*] Cracking Hash " + args.md5)
         if args.file and not args.plength:
             print("[*] Using Dictionnary File " + args.file)
             #False = processus descendant , True = processus ascendant
             p1 = multiprocessing.Process(target=Cracker.work, args=(workQueue, doneQueue, args.md5, args.file, False))
-            processes.append(p1)
             workQueue.put(cracker)
             p1.start()
             p2 = multiprocessing.Process(target=Cracker.work, args=(workQueue, doneQueue, args.md5, args.file, True))
-            processes.append(p2)
             workQueue.put(cracker)
             p2.start()
 
             while True:
                 data = doneQueue.get()
-                notFound = 0
-                if data == "Found":
+                if data == "Found" or data == "Not Found":
                     p1.kill()
                     p2.kill()
                     break
-                elif data == "Not Found":
-                    notFound = notFound + 1
-                    break
-                if notFound == len(processes):
-                    print("no process found a password")
-                    break
+
 
            # Cracker.hashCrack(args.md5, args.file)
         elif args.plength and not args.file:
